@@ -1,0 +1,150 @@
+---
+title: "Project 1 Notebook"
+output: html_notebook
+---
+
+# Load in packages
+```{r}
+library(tidyverse)
+library(sqldf)
+library(lubridate)
+```
+
+# Load in Data
+
+Using SQL due to size of data and only small amount we need
+```{r}
+power <- read.csv.sql("household_power_consumption.txt",
+                  sql = "select * from file where Date = '1/2/2007' or Date = '2/2/2007'",
+                  sep = ";")
+
+
+power <- mutate(power,
+                datetime = strptime(
+                  paste(Date, Time),"%d/%m/%Y %H:%M:%S"))
+colnames(power)
+```
+
+# Plot1.png
+
+Histogram, 12 bins
+title = "Global Active Power
+xlabel = Global Active Power (kilowatts)
+ylabel = "Frequency
+
+```{r}
+png(filename = "plot1.png",
+    width = 480, height = 480)
+hist(power$Global_active_power, col = "red",
+     main = "Global Active Power",
+     xlab = "Global Active Power (kilowatts)")
+dev.off() # close png device for next plot
+```
+
+# Plot2.png
+
+lineplot?
+
+xticks = Thu, Fri, Sat
+ylabel = "Global Active Power (kilowatts)"
+
+```{r}
+png(filename = "plot2.png", width = 480, height = 480)
+
+plot(power$datetime, power$Global_active_power,
+                 xlab = "",
+                 ylab = "Global Active Power(kilowatts)",
+                 type = "l")
+
+dev.off() # close png device for next plot
+
+```
+
+# Plot3.png
+
+Combination of 3 line plots
+
+- Sub_metering_1 in black
+- Sub_metering_2 in red
+- Sub_metering_3 in blue
+
+ylabel = "Energy sub metering"
+xticks = "Thu", "Fri", "Sat"
+
+legend in top right
+
+```{r}
+png(filename = "plot3.png", width = 480, height = 480)
+
+par(mfrow = c(1, 1))
+
+
+plot(power$datetime, power$Sub_metering_1, col = "black",
+     type = "l", xlab = "", ylab = "Energy sub metering")
+
+lines(power$datetime, power$Sub_metering_2, col = "red",
+     xaxt = "n", yaxt = "n")
+
+lines(power$datetime, power$Sub_metering_3, col = "blue",
+     xaxt = "n", yaxt = "n")
+
+legend("topright",
+       legend = c("Sub_metering_1",
+                  "Sub_metering_2",
+                  "Sub_metering_3"),
+       col = c("black", "red", "blue"),
+       lty = 1)
+
+dev.off() # close png device for next plot
+```
+
+# Plot4.png
+A 2,2 multiplot
+
+1: plot2
+2: lineplot Voltage against datetime
+3: plot3
+4: lineplot global_reactive_power against datetime
+
+```{r}
+png(filename = "plot4.png", width = 480, height = 480)
+
+par(mfrow = c(2, 2))
+
+# Plot 1
+plot(power$datetime, power$Global_active_power,
+                 xlab = "",
+                 ylab = "Global Active Power(kilowatts)",
+                 type = "l")
+
+
+# Plot 2
+plot(power$datetime, power$Voltage,
+     xlab = "datetime", ylab = "Voltage", type = "l")
+
+
+# Plot 3
+plot(power$datetime, power$Sub_metering_1, col = "black",
+     type = "l", xlab = "", ylab = "Energy sub metering")
+
+lines(power$datetime, power$Sub_metering_2, col = "red",
+     xaxt = "n", yaxt = "n")
+
+lines(power$datetime, power$Sub_metering_3, col = "blue",
+     xaxt = "n", yaxt = "n")
+
+legend("topright",
+       legend = c("Sub_metering_1",
+                  "Sub_metering_2",
+                  "Sub_metering_3"),
+       col = c("black", "red", "blue"),
+       lty = 1)
+
+# Plot 4
+plot(power$datetime, power$Global_reactive_power,
+     xlab = "datetime", ylab = "Global_reactive_power",
+     type = "l")
+
+dev.off() # close png device for next plot
+
+```
